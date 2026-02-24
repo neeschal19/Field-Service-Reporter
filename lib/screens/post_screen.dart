@@ -13,11 +13,12 @@ class _PostScreenState extends State<PostScreen> {
   final TextEditingController controller = TextEditingController();
   bool isSending = false;
 
-  Future<void> sendNote() async {
-    setState(() {
-      isSending = true;
-    });
+Future<void> sendNote() async {
+  setState(() {
+    isSending = true;
+  });
 
+  try {
     final response = await http.post(
       Uri.parse('https://jsonplaceholder.typicode.com/posts'),
       headers: {'Content-Type': 'application/json'},
@@ -41,8 +42,19 @@ class _PostScreenState extends State<PostScreen> {
         const SnackBar(content: Text("Failed to send data")),
       );
     }
-  }
 
+  } catch (e) {
+    if (!mounted) return;
+
+    setState(() {
+      isSending = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("No Internet Connection")),
+    );
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
